@@ -80,7 +80,27 @@ function version_ge {
     # If $1 is latest version, then $1 >= $2
     [ "$1" == "$latest" ]
 }
+# Install KCCbench
+function kccbench {
+    if [ ! -d "$BUILD_DIR/openflow" ]; then
+        openflow
+    fi
+    echo "installing KulCloud Cbench... (support openflow1.3)"
+    cd $BUILD_DIR
 
+    sudo apt-get install libconfig8-dev libsnmp-dev libpcap-dev
+    #Downloads from KulCloud's blog
+    wget http://www.weebly.com/uploads/1/3/2/6/13260234/kc-cbench.tgz
+
+    tar -xvzf kc-cbench.tgz
+    cd kc-cbench
+    ./boot.sh
+    ./configure --with-openflow-src-dir=$BUILD_DIR/openflow
+    make
+    make install
+
+    cd $BUILD_DIR
+}
 # Install OpenMUL
 function openmul {
     echo "Installing MUL Controller..."
@@ -91,19 +111,32 @@ function openmul {
     cd openmul
     ./build.sh
 
-    cp application/nbapi/c-swig/.lib/_mul_nbapi.so application/nbapi/py-tornado/app/lib/
-    cp application/nbapi/c-swig/.lib/_mul_nbapi.so.0 application/nbapi/py-tornado/app/lib/
-    cp application/nbapi/c-swig/.lib/_mul_nbapi.so.0.0.0 application/nbapi/py-tornado/app/lib/
-    cp application/nbapi/c-swig/.lib/mul_nbapi.py application/nbapi/py-tornado/app/lib/
+    cp application/nbapi/c-swig/.libs/_mul_nbapi.so application/nbapi/py-tornado/app/lib/
+    cp application/nbapi/c-swig/.libs/_mul_nbapi.so.0 application/nbapi/py-tornado/app/lib/
+    cp application/nbapi/c-swig/.libs/_mul_nbapi.so.0.0.0 application/nbapi/py-tornado/app/lib/
+    cp application/nbapi/c-swig/mul_nbapi.py application/nbapi/py-tornado/app/lib/
 
-    cp application/nbapi/c-swig/.lib/_mul_nbapi.so TEST_SCRIPTS/python/
-    cp application/nbapi/c-swig/.lib/_mul_nbapi.so.0 TEST_SCRIPTS/python/
-    cp application/nbapi/c-swig/.lib/_mul_nbapi.so.0.0.0 TEST_SCRIPTS/python/
-    cp application/nbapi/c-swig/.lib/mul_nbapi.py TEST_SCRIPTS/python/
+    cp application/nbapi/c-swig/.libs/_mul_nbapi.so TEST-SCRIPTS/python/
+    cp application/nbapi/c-swig/.libs/_mul_nbapi.so.0 TEST-SCRIPTS/python/
+    cp application/nbapi/c-swig/.libs/_mul_nbapi.so.0.0.0 TEST-SCRIPTS/python/
+    cp application/nbapi/c-swig/mul_nbapi.py TEST-SCRIPTS/python/
 
     cd $BUILD_DIR
 }
+function openflow {
+    echo "Installing OpenFlow"
+    cd $BUILD_DIR
 
+    git clone git://openflowswitch.org/openflow.git
+    cd openflow
+
+    ./boot.sh
+    ./configure
+    make
+    make install    
+
+    cd $BUILD_DIR
+}
 function usage {
     echo $BUILD_DIR
     printf '\nUsage: %s [-acdfhimnorv]\n\n' $(basename $0) >&2
@@ -120,6 +153,7 @@ function usage {
     printf -- ' -d: -install Open(D)ayLight controller\n' >&2
     printf -- ' -f: -install (F)loodlight controller\n' >&2
     printf -- ' -i: -install M(I)ninet \n' >&2
+    printf -- ' -k: -install (K)CCbench \n' >&2
     printf -- ' -m: -install open(M)ul controller\n' >&2
     printf -- ' -n: -install O(N)os controller\n' >&2
     printf -- ' -o: -install (O)penflow \n' >&2
@@ -133,7 +167,7 @@ if [ $# -eq 0 ]
 then
     usage
 else
-    while getopts 'abdfimnorv' OPTION
+    while getopts 'abdfikmnorv' OPTION
     do
       case $OPTION in
       #a)    avior;;
@@ -141,9 +175,10 @@ else
       #d)    opendaylight;;
       #f)    floodlight;;
       #i)    mininet;;
+      k)    kccbench;;
       m)    openmul;;
       #n)    onos;;
-      #o)    openflow;;
+      o)    openflow;;
       #r)    ryu;;
       #v)    openvswitch;;
       ?)    usage;;
