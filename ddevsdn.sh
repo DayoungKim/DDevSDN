@@ -21,6 +21,9 @@ case $BUILD_DIR in
   *) BUILD_DIR=$BUILD_DIR;;
 esac
 
+ODL_ZIP="distribution-karaf-0.2.3-Helium-SR3.zip"
+FEATURES_FILE=$BUILD_DIR/distribution-karaf-0.2.3-Helium-SR3/etc/org.apache.karaf.features.cfg
+
 # Attempt to identify Linux release
 
 DIST=Unknown
@@ -99,6 +102,35 @@ function cbench {
 
     cd $BUILD_DIR
 }
+# Install openDaylight copy from wcbench https://github.com/dfarrell07/wcbench
+add_to_featuresBoot()
+{
+    feature=$1
+
+    # Append feature to end of boot-install list
+    sed -i "/^featuresBoot=/ s/$/,$feature/" $FEATURES_FILE
+}
+opendaylight()
+{
+    cd $BUILD_DIR
+    echo "Installing OpenDaylight dependencies"
+   
+    sudo apt-get install maven git openjdk-7-jre openjdk-7-jdk -y
+ 
+    # Grab OpenDaylight Helium 0.2.3
+    echo "Downloading OpenDaylight Helium 0.2.3"
+    wget "https://nexus.opendaylight.org/content/groups/public/org/opendaylight/integration/distribution-karaf/0.2.3-Helium-SR3/$ODL_ZIP"
+
+    unzip $ODL_ZIP
+
+    # Add required features to list installed by Karaf at ODL boot
+    add_to_featuresBoot "odl-openflowplugin-flow-services"
+    add_to_featuresBoot "odl-openflowplugin-drop-test"
+
+    cd $BUILD_DIR
+}
+
+
 # Install KCCbench
 function kccbench {
     if [ ! -d "$BUILD_DIR/openflow" ]; then
@@ -142,6 +174,24 @@ function openmul {
 
     cd $BUILD_DIR
 }
+# Install Onos
+function onos {
+#    sudo apt-get install software-properties-common -y
+#    sudo add-apt-repository ppa:webupd8team/java -y
+#    sudo apt-get update
+#    sudo apt-get install oracle-java8-installer oracle-java8-set-default -y
+#    wget http://apache.mirror.cdnetworks.com/karaf/3.0.3/apache-karaf-3.0.3.tar.gz
+#    wget http://mirror.apache-kr.org/maven/maven-3/3.3.1/binaries/apache-maven-3.3.1-bin.tar.gz
+#    tar -zxvf apache-karaf-3.0.3.tar.gz
+#    tar -zxvf apache-maven-3.3.1-bin.tar.gz
+#    git clone https://gerrit.onosproject.org/onos
+
+#    sed -i "" $BUILD_DIR/onos/tools/dev/bash_profile 
+    
+    sed -e "ONOS_ROOT:-~/$BUILD_DIR" $BUILD_DIR/onos/tools/dev/bash_profile
+    source $BUILD_DIR/onos/tools/dev/bash_profile
+}
+# Install OpenFlow
 function openflow {
     echo "Installing OpenFlow"
     cd $BUILD_DIR
@@ -191,12 +241,12 @@ else
       case $OPTION in
       #a)    avior;;
       b)    cbench;;
-      #d)    opendaylight;;
+      d)    opendaylight;;
       #f)    floodlight;;
       #i)    mininet;;
       k)    kccbench;;
       m)    openmul;;
-      #n)    onos;;
+      n)    onos;;
       o)    openflow;;
       #r)    ryu;;
       #v)    openvswitch;;
