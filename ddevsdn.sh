@@ -80,6 +80,25 @@ function version_ge {
     # If $1 is latest version, then $1 >= $2
     [ "$1" == "$latest" ]
 }
+# Install Cbench
+function cbench {
+    if [ ! -d "$BUILD_DIR/openflow" ]; then
+        openflow
+    fi
+    echo "installing KulCloud Cbench... (support openflow1.3)"
+    cd $BUILD_DIR
+
+    sudo apt-get install autoconf automake libtool libsnmp-dev libpcap-dev
+
+    git clone git://gitosis.stanford.edu/oflops.git
+    cd oflops
+    sh ./boot.sh
+    ./configure --with-openflow-src-dir=$BUILD_DIR/openflow
+    make
+    make install
+
+    cd $BUILD_DIR
+}
 # Install KCCbench
 function kccbench {
     if [ ! -d "$BUILD_DIR/openflow" ]; then
@@ -171,7 +190,7 @@ else
     do
       case $OPTION in
       #a)    avior;;
-      #b)    cbench;;
+      b)    cbench;;
       #d)    opendaylight;;
       #f)    floodlight;;
       #i)    mininet;;
