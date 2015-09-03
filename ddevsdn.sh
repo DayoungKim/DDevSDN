@@ -206,9 +206,16 @@ function openflow {
 
     cd $BUILD_DIR
 }
+# Install sflow
+function sflow {
+    wget http://www.inmon.com/products/sFlow-RT/sflow-rt.tar.gz
+    tar -xvzf sflow-rt.tar.gz
+    cd sflow-rt
+    #./start.sh
+}
 function usage {
     echo $BUILD_DIR
-    printf '\nUsage: %s [-acdfhimnorv]\n\n' $(basename $0) >&2
+    printf '\nUsage: %s [-acdfhimnorsv]\n\n' $(basename $0) >&2
 
     printf 'This DDevSDN script attempts to install, run and testing useful software\n' >&2
     printf 'for OpenMUL.It should (hopefully) work on Ubuntu 11.10+\n' >&2
@@ -227,6 +234,7 @@ function usage {
     printf -- ' -n: -install O(N)os controller\n' >&2
     printf -- ' -o: -install (O)penflow \n' >&2
     printf -- ' -r: -install (R)yu controller\n' >&2
+    printf -- ' -s: -install (S)flow\n' >&2
     printf -- ' -v: -install open(V)switch\n' >&2
 
     exit 2
@@ -249,6 +257,7 @@ else
       n)    onos;;
       o)    openflow;;
       #r)    ryu;;
+      #s)    sflow;;
       #v)    openvswitch;;
       ?)    usage;;
       esac
