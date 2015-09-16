@@ -83,6 +83,14 @@ function version_ge {
     # If $1 is latest version, then $1 >= $2
     [ "$1" == "$latest" ]
 }
+
+# Install Avior
+function avior {
+    git clone http://github.com/1PhoenixM/avior-service
+    sudo apt-get install python-software-properties python g++ make
+    sudo add-apt-repository ppa:chris-lea/node.js
+    sudo apt-get install nodejs
+}
 # Install Cbench
 function cbench {
     if [ ! -d "$BUILD_DIR/openflow" ]; then
@@ -247,7 +255,7 @@ else
     while getopts 'abdfikmnorv' OPTION
     do
       case $OPTION in
-      #a)    avior;;
+      a)    avior;;
       b)    cbench;;
       d)    opendaylight;;
       #f)    floodlight;;
