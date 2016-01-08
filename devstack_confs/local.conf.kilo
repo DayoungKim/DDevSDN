@@ -1,0 +1,67 @@
+[[local|localrc]]
+HOST_IP=10.1.100.27
+#MULTI_HOST=0
+#VIRT_DRIVER=novadocker.virt.docker.DockerDriver
+# Interface connected to switch
+FLAT_INTERFACE=eth1
+# Logging settings
+LOGDAYS=1
+LOGFILE=$DEST/logs/stack.sh.log
+#SCREEN_LOGDIR=$DEST/logs/screen
+# Passwords and token
+ADMIN_PASSWORD=kulcloud
+DATABASE_PASSWORD=$ADMIN_PASSWORD
+RABBIT_PASSWORD=$ADMIN_PASSWORD
+SERVICE_PASSWORD=$ADMIN_PASSWORD
+SERVICE_TOKEN=kulcloud
+# Clean up on every restart
+RECLONE=yes
+# Fixed and floating subnets
+FIXED_RANGE=10.254.1.0/24
+NETWORK_GATEWAY=10.254.1.1
+
+##vpnaas
+PRIVATE_SUBNET_NAME=private-subnet
+PUBLIC_SUBNET_NAME=public-subnet
+#FLOATING_RANGE=
+#PUBLIC_NETWORK_GATEWAY=
+#Q_FLOATING_ALLOCATION_POOL=
+LIBVIRT_TYPE=qemu
+##vpnaas
+
+# Disable Nova Networking and enable Neutron
+disable_service n-net
+enable_service q-svc
+enable_service q-agt
+enable_service q-dhcp
+enable_service q-l3
+enable_service q-meta
+enable_service neutron
+enable_service heat h-api h-api-cfn h-api-cw h-eng
+enable_service murano murano-api murano-engine
+#vpnaas
+enable_service q-vpn
+enable_plugin neutron-vpnaas https://git.openstack.org/openstack/neutron-vpnaas stable/kilo
+#fwaas
+enable_service q-fwaas
+enable_plugin neutron-fwaas https://git.openstack.org/openstack/neutron-fwaas stable/kilo
+#lbaas
+enable_service q-lbaasv2 octavia o-cw o-hk o-hm o-api
+enable_plugin neutron-lbaas https://github.com/openstack/neutron-lbaas.git stable/kilo
+#enable_plugin octavia https://github.com/openstack/octavia.git stable/kilo
+# Turn on ML2
+Q_PLUGIN=ml2
+# Allow tenants to create vlans?
+ENABLE_TENANT_VLANS=True
+TENANT_VLAN_RANGE=100:2999
+# these are needed fo VLANs for tenants to connect to physical switch
+PHYSICAL_NETWORK=default
+OVS_PHYSICAL_BRIDGE=br-eth1
+# I think this will load the arista ML2 driver
+# Q_ML2_PLUGIN_MECHANISM_DRIVERS = openvswitch,linuxbridge,arista
+# Github's Branch
+GLANCE_BRANCH=stable/kilo
+HORIZON_BRANCH=stable/kilo
+KEYSTONE_BRANCH=stable/kilo
+NOVA_BRANCH=stable/kilo
+NEUTRON_BRANCH=stable/kilo
